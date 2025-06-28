@@ -11,29 +11,21 @@ const addItem = document.querySelector("#addItem")
 const formTable = document.querySelector("#formTable")
 let table = document.querySelector("#tableView")
 
-const createTask = () => {
-        let task = {
-        item : document.getElementById("itemText").value,
-        time : dateTime()
-    }
-    if(!task.item){
-        document.getElementById("noTask").innerHTML = "<span style='color: red;'>Enter Your Task</span>"
-    }else{        
-        document.getElementById("noTask").innerHTML = ""
-        document.getElementById("itemText").value = null
-        displayTask(task)
-    }    
-}
-const displayTask = (task) => {    
-        let tr = table.insertRow(0)
-        let td1 = tr.insertCell(0)
-        let td2 = tr.insertCell(1)
-        let td3 = tr.insertCell(2)
-        td1.innerHTML = task.item
-        td2.innerHTML = task.time
-        td3.innerHTML = `<button id="deleteBtn" onClick="table.deleteRow(parentNode.parentNode.rowIndex)">Delete</button>`
-    }
+let tasks = [] 
 
+const createTask = () => {
+    const item = document.getElementById("itemText").value
+    
+    if(item){
+        const time = dateTime()
+        tasks.unshift({item, time})
+        document.getElementById("itemText").value = null
+        document.getElementById("noTask").innerHTML= ""
+        displayTask()
+    }else{
+        document.getElementById("noTask").innerHTML = "<span style='color: red;'>Enter Your Task</span>"
+    } 
+}
 const dateTime = () => {
     const now = new Date()       
     const day = now.getDate()
@@ -45,6 +37,21 @@ const dateTime = () => {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     return(`${day}-${month}-${year}, ${hours}:${minutes}:${seconds} ${ampm}`)    
 }
+const displayTask = () => {    
+        const list = document.getElementById("taskList")
+        list.innerHTML = ""
+        
+        tasks.forEach((task, index) =>{
+            const taskDiv = document.createElement("div");
+            taskDiv.innerHTML = `
+            Task : ${task.item} 
+            Created on: ${task.time}
+            <button id="deleteBtn" onClick="deleteTask(${index})">Delete</button><br><br>` 
+            list.appendChild(taskDiv)        
+        })        
+}
+const deleteTask = (index) => {
+    tasks.splice(index, 1)
+    displayTask()
+}
 addItem.addEventListener("click", createTask)
-
-
