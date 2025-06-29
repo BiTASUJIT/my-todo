@@ -51,7 +51,7 @@ const displayTask = () => {
         })        
 }
 const deleteTask = (index) => {
-    tasks.splice(index, 1)
+    tasks = tasks.filter(task => task.item!== tasks[index].item)
     displayTask()
 }
 addItem.addEventListener("click", createTask)
