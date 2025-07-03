@@ -7,26 +7,53 @@
 
 /////////////////////////////////////////////////////
 
-const addItem = document.querySelector("#addItem")
 const formTable = document.querySelector("#formTable")
-let table = document.querySelector("#tableView")
+const textInput = document.querySelector("#textInput")
+const addTextBtn = document.querySelector("#addText")
+const noText = document.querySelector("#noText")
+const taskList = document.querySelector("#taskList")
 
-let tasks = [] 
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [] 
 
-const createTask = () => {
-    const item = document.getElementById("itemText").value
-    
-    if(item){
-        const time = dateTime()
-        tasks.unshift({item, time})
-        document.getElementById("itemText").value = null
-        document.getElementById("noTask").innerHTML= ""
-        displayTask()
+const addTask = () => {
+    //console.log(tasks)
+    const item = textInput.value    
+    if(!item){
+        noText.innerHTML = "<span style='color: red;'>Enter Your Task</span>"
     }else{
-        document.getElementById("noTask").innerHTML = "<span style='color: red;'>Enter Your Task</span>"
-    } 
+        const dupliactae = tasks.filter(task => task.item.toLowerCase() === item.toLowerCase())
+        if(dupliactae.length===0){
+            const time = currentTime()
+            tasks.unshift({item, time})
+            textInput.value = null
+            noText.innerHTML= ""            
+            localSave()
+            displayTask()
+        }else{
+            noText.innerHTML = "<span style='color: red;'>Duplicate Task</span>"
+        }
+    }    
 }
-const dateTime = () => {
+
+const displayTask = () => {    
+        taskList.innerHTML = ""        
+        tasks.forEach((task, index) =>{
+            const taskDiv = document.createElement("div");
+            taskDiv.innerHTML = `
+            Task : ${task.item} 
+            Created on: ${task.time}
+            <button id="deleteBtn" onClick="deleteTask(${index})">Delete</button><br><br>` 
+            taskList.appendChild(taskDiv)        
+        })        
+}
+
+const deleteTask = (index) => {
+    tasks = tasks.filter(task => task.item!== tasks[index].item)
+    localSave()
+    displayTask()
+}
+
+const currentTime = () => {
     const now = new Date()       
     const day = now.getDate()
     const month = now.getMonth() + 1
@@ -37,21 +64,10 @@ const dateTime = () => {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     return(`${day}-${month}-${year}, ${hours}:${minutes}:${seconds} ${ampm}`)    
 }
-const displayTask = () => {    
-        const list = document.getElementById("taskList")
-        list.innerHTML = ""
-        
-        tasks.forEach((task, index) =>{
-            const taskDiv = document.createElement("div");
-            taskDiv.innerHTML = `
-            Task : ${task.item} 
-            Created on: ${task.time}
-            <button id="deleteBtn" onClick="deleteTask(${index})">Delete</button><br><br>` 
-            list.appendChild(taskDiv)        
-        })        
+
+const localSave = () => {
+    localStorage.setItem("tasks", JSON.stringify(tasks))
 }
-const deleteTask = (index) => {
-    tasks = tasks.filter(task => task.item!== tasks[index].item)
-    displayTask()
-}
-addItem.addEventListener("click", createTask)
+
+addTextBtn.addEventListener("click", addTask)
+displayTask()
